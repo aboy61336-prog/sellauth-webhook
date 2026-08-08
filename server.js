@@ -13,6 +13,7 @@ app.post('/sellauth-webhook', async (req, res) => {
         let invoiceId = body.data?.invoice_id || body.invoice_id;
 
         let productName = "Nivex Product";
+        let productUrl = "https://sellauth.com";
         let quantity = 1;
         let total = 0;
         let currency = "EUR";
@@ -46,15 +47,17 @@ app.post('/sellauth-webhook', async (req, res) => {
 
         const discordPayload = {
             embeds: [{
-                title: "<:replace_nivex:1520076083028955165> NIVEX - ORDER COMPLETED",
+                title: "<:replace_nivex:1520076083028955165> ORDER COMPLETED",
                 color: 0x2B6CB0,
-                description: `> **${productName}**\n\n` +
+                description: `> [>_ **${productName}**](${productUrl})\n\n` +
+                             `───────────────────────────────\n` +
                              `• 📁 **Quantity:** ${quantity}\n` +
                              `• 💳 **Total Price:** ${total} ${currency} <a:nivex_money:1535661828183564298>\n` +
-                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>`,
+                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>\n` +
+                             `───────────────────────────────`,
                 timestamp: new Date().toISOString(),
                 footer: {
-                    text: "NIVEX Auto-System"
+                    text: `Completed: ${new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}`
                 }
             }]
         };
