@@ -26,7 +26,6 @@ app.post('/sellauth-webhook', async (req, res) => {
                 
                 const inv = apiResponse.data;
                 if (inv) {
-                    // Presné cesty k dátam podľa tvojho logu
                     if (inv.items && inv.items.length > 0) {
                         productName = inv.items[0].product?.name || inv.items[0].product_name || productName;
                         quantity = inv.items[0].quantity || 1;
@@ -34,7 +33,6 @@ app.post('/sellauth-webhook', async (req, res) => {
                     total = inv.total || inv.price || 0;
                     currency = inv.currency || "EUR";
                     
-                    // Vytiahneme plný názov platobnej metódy (napr. Litecoin)
                     if (inv.payment_method && inv.payment_method.name) {
                         method = inv.payment_method.name;
                     } else {
@@ -49,7 +47,7 @@ app.post('/sellauth-webhook', async (req, res) => {
         const discordPayload = {
             embeds: [{
                 title: "<:replace_nivex:1520076083028955165> NIVEX - ORDER COMPLETED",
-                color: 0x9b59b6,
+                color: 0x2B6CB0, // Profesionálna modrá farba
                 description: `**Product:** ${productName}`,
                 fields: [
                     { name: "📁 Quantity", value: String(quantity), inline: true },
