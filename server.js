@@ -4,24 +4,35 @@ const app = express();
 
 app.use(express.json());
 
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
+const DISCORD_WEBHOOK_URL = 'TVOJ_DISCORD_WEBHOOK_URL';
 
 app.post('/sellauth-webhook', async (req, res) => {
     try {
-        const data = req.body;
+        const body = req.body;
         
-        // Získanie údajov (prispôsobené pre Sellauth štruktúru)
-        const product = data.product || data.product_name || "Neznámy produkt";
-        const quantity = data.quantity || 1;
-        const total = data.total || data.price || 0;
-        const currency = data.currency || "EUR";
-        const method = data.gateway || data.method || "Neznáma";
+        // Sellauth zvyčajne obaľuje dáta do objektu order alebo invoice
+        const payload = body.order || body.invoice || body.data || body;
+
+        // Bezpečné vytiahnutie produktov / názvu
+        let productName = "Unknown Product";
+        if (payload.products && payload.products.length > 0) {
+            productName = payload.products[0].name || payload.products[0].product_name;
+        } else if (payload.product_name) {
+            productName = payload.product_name;
+        } else if (payload.item) {
+            productName = payload.item;
+        }
+
+        const quantity = payload.quantity || (payload.products && payload.products[0]?.quantity) || 1;
+        const total = payload.total || payload.price || 0;
+        const currency = payload.currency || "EUR";
+        const method = payload.gateway || payload.payment_method || payload.method || "Unknown";
 
         const discordPayload = {
             embeds: [{
-                title: "🛍️ NIVEX - ORDER COMPLETED",
+                title: "<:replace_nivex:1520076083028955165> NIVEX - ORDER COMPLETED",
                 color: 0x9b59b6,
-                description: `**Produkt:** ${product}`,
+                description: `**Product:** ${productName}`,
                 fields: [
                     { name: "📁 Quantity", value: String(quantity), inline: true },
                     { name: "💳 Total Price", value: `${total} ${currency} <a:nivex_money:1535661828183564298>`, inline: true },
