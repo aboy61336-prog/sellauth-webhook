@@ -47,13 +47,11 @@ app.post('/sellauth-webhook', async (req, res) => {
         const discordPayload = {
             embeds: [{
                 title: "<:replace_nivex:1520076083028955165> NIVEX - ORDER COMPLETED",
-                color: 0x2B6CB0, // Profesionálna modrá farba
-                description: `**Product:** ${productName}`,
-                fields: [
-                    { name: "📁 Quantity", value: String(quantity), inline: true },
-                    { name: "Total Price", value: `${total} ${currency} <a:nivex_money:1535661828183564298>`, inline: true },
-                    { name: "Method", value: `${method} <:nivex_shield:1522572883279482951>`, inline: true }
-                ],
+                color: 0x2B6CB0,
+                description: `> **${productName}**\n\n` +
+                             `• 📁 **Quantity:** ${quantity}\n` +
+                             `• 💳 **Total Price:** ${total} ${currency} <a:nivex_money:1535661828183564298>\n` +
+                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>`,
                 timestamp: new Date().toISOString(),
                 footer: {
                     text: "NIVEX Auto-System"
