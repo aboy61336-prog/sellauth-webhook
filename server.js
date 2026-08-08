@@ -8,25 +8,19 @@ const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/153566235190113485
 
 app.post('/sellauth-webhook', async (req, res) => {
     try {
-        const body = req.body;
-        const payload = body.order || body.invoice || body.data || body;
+        console.log("PRIJETÉ DÁTA ZO SELLAUTH:", JSON.stringify(req.body, null, 2));
 
-        // Vytiahnutie názvu produktu zo všetkých možných štruktúr Sellauthu
-        let productName = "Unknown Product";
-        if (payload.items && payload.items.length > 0) {
-            productName = payload.items[0].product_name || payload.items[0].name;
-        } else if (payload.products && payload.products.length > 0) {
-            productName = payload.products[0].name || payload.products[0].product_name;
-        } else if (payload.product_name) {
-            productName = payload.product_name;
-        } else if (payload.product && typeof payload.product === 'string') {
-            productName = payload.product;
-        } else if (payload.product && payload.product.name) {
-            productName = payload.product.name;
+        const body = req.body;
+        // Skúsime prebehnúť všetky možné vnorenia, ktoré Sellauth používateľom posiela
+        const payload = body.order || body.invoice || body.data || body.resource || body;
+
+        let productName = payload.product_name || payload.name || payload.title || payload.item_name || "Unknown Product";
+        if (payload.products && payload.products.length > 0) {
+            productName = payload.products[0].name || payload.products[0].product_name || productName;
         }
 
-        const quantity = payload.quantity || (payload.items && payload.items[0]?.quantity) || 1;
-        const total = payload.total || payload.price || payload.amount || 0;
+        const quantity = payload.quantity || payload.amount_items || 1;
+        const total = payload.total || payload.price || payload.amount || payload.total_price || 0;
         const currency = payload.currency || "EUR";
         const method = payload.gateway || payload.payment_method || payload.method || payload.processor || "Unknown";
 
