@@ -12,7 +12,7 @@ app.get('/sellauth-webhook', (req, res) => {
 });
 
 app.post('/sellauth-webhook', async (req, res) => {
-    console.log("PRIJETÝ WEBHOOK ZO SELLAUTH:", JSON.stringify(req.body, null, 2));
+    console.log("PRIJETÝ WEBHOOK ZO SELLAUTH:", JSON.stringify(req.body, null, 1));
     
     try {
         const body = req.body;
