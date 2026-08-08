@@ -7,7 +7,13 @@ app.use(express.json());
 const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
 const SELLAUTH_API_KEY = '6017718|HLsxPN5M40VgcYxmWp0ZQ2fXpFde9nqKfwyFmRE2b7877ced';
 
+app.get('/sellauth-webhook', (req, res) => {
+    res.status(200).send('Server beží a čaka na Sellauth webhooky!');
+});
+
 app.post('/sellauth-webhook', async (req, res) => {
+    console.log("PRIJETÝ WEBHOOK ZO SELLAUTH:", JSON.stringify(req.body, null, 2));
+    
     try {
         const body = req.body;
         let invoiceId = body.data?.invoice_id || body.invoice_id;
@@ -63,10 +69,10 @@ app.post('/sellauth-webhook', async (req, res) => {
             embeds: [{
                 title: "<:replace_nivex:1520076083028955165> ORDER COMPLETED",
                 color: 0x2B6CB0,
-                description: `> [>_ **${productName}**](https://nivexshop.xyz/)\n\n` +
-                             `• 📁 **Quantity:** ${quantity}\n` +
-                             `• 💳 **Total Price:** ${total} ${currency} <a:nivex_money:1535661828183564298>\n` +
-                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>`,
+                description: `> [<:nivex_cmd:1535686335787180124> **${productName}**](https://nivexshop.xyz/)\n\n` +
+                             `• <:nivex_file:1535685174250184704> **Quantity:** ${quantity}\n` +
+                             `• <:nivex_calculator:1535687673824546826> **Total Price:** ${total} ${currency}\n` +
+                             `• <:nivex_method:1535688050712121384> **Method:** ${method}`,
                 timestamp: new Date().toISOString(),
                 footer: {
                     text: `Completed: ${formattedDate}`
@@ -77,7 +83,7 @@ app.post('/sellauth-webhook', async (req, res) => {
         await axios.post(DISCORD_WEBHOOK_URL, discordPayload);
         res.status(200).send({ status: 'success' });
     } catch (error) {
-        console.error('Chyba:', error);
+        console.error('Chyba v serveri:', error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
