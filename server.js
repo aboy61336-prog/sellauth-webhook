@@ -68,7 +68,7 @@ app.post('/sellauth-webhook', async (req, res) => {
         const discordPayload = {
             embeds: [{
                 title: "<:replace_nivex:1520076083028955165> ORDER COMPLETED",
-                color: 0x2B6CB0,
+                color: 0x0078ff, // Zmenená farba okrajovej čiary
                 description: `> [<:nivex_cmd:1535686335787180124> **${productName}**](https://nivexshop.xyz/)\n\n` +
                              `• <:nivex_file:1535685174250184704> **Quantity:** ${quantity}\n` +
                              `• <:nivex_calculator:1535687673824546826> **Total Price:** ${total} ${currency}\n` +
