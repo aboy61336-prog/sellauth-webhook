@@ -7,16 +7,29 @@ app.use(express.json());
 const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
 const SELLAUTH_API_KEY = '6017718|HLsxPN5M40VgcYxmWp0ZQ2fXpFde9nqKfwyFmRE2b7877ced';
 
+// Pamäť na zabránenie duplicitných správ (zapamätá si spracované ID na 10 minút)
+const processedInvoices = new Set();
+
 app.get('/sellauth-webhook', (req, res) => {
     res.status(200).send('Server beží a čaka na Sellauth webhooky!');
 });
 
 app.post('/sellauth-webhook', async (req, res) => {
-    console.log("PRIJETÝ WEBHOOK ZO SELLAUTH:", JSON.stringify(req.body, null, 1));
-    
     try {
         const body = req.body;
-        let invoiceId = body.data?.invoice_id || body.invoice_id;
+        let invoiceId = body.data?.invoice_id || body.invoice_id || body.id;
+
+        // Ochrana proti duplicite
+        if (invoiceId) {
+            if (processedInvoices.has(invoiceId)) {
+                console.log(`Duplicitný webhook pre faktúru #${invoiceId} bol ignorovaný.`);
+                return res.status(200).send({ status: 'ignored_duplicate' });
+            }
+            
+            // Pridáme ID do pamäte a po 10 minútach ho vymažeme
+            processedInvoices.add(invoiceId);
+            setTimeout(() => processedInvoices.delete(invoiceId), 10 * 60 * 1000);
+        }
 
         let productName = "Nivex Product";
         let quantity = 1;
