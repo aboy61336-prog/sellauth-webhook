@@ -24,16 +24,22 @@ app.post('/sellauth-webhook', async (req, res) => {
                     headers: { 'Authorization': `Bearer ${SELLAUTH_API_KEY}` }
                 });
                 
-                // Vypíšeme celú odpoveď z API do logov, aby sme videli presné názvy premenných
-                console.log("CELÁ ODPOVEĎ Z API:", JSON.stringify(apiResponse.data, null, 2));
-
-                const inv = apiResponse.data.invoice || apiResponse.data;
+                const inv = apiResponse.data;
                 if (inv) {
-                    productName = inv.product_name || inv.product?.name || inv.items?.[0]?.product_name || inv.items?.[0]?.name || productName;
-                    quantity = inv.quantity || inv.items?.[0]?.quantity || 1;
+                    // Presné cesty k dátam podľa tvojho logu
+                    if (inv.items && inv.items.length > 0) {
+                        productName = inv.items[0].product?.name || inv.items[0].product_name || productName;
+                        quantity = inv.items[0].quantity || 1;
+                    }
                     total = inv.total || inv.price || 0;
                     currency = inv.currency || "EUR";
-                    method = inv.gateway || inv.gateway_name || inv.payment_method || inv.method || inv.crypto || method;
+                    
+                    // Vytiahneme plný názov platobnej metódy (napr. Litecoin)
+                    if (inv.payment_method && inv.payment_method.name) {
+                        method = inv.payment_method.name;
+                    } else {
+                        method = inv.gateway || "Crypto";
+                    }
                 }
             } catch (apiErr) {
                 console.error('Chyba pri sťahovaní dát z API:', apiErr.message);
