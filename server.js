@@ -11,18 +11,14 @@ app.post('/sellauth-webhook', async (req, res) => {
         console.log("PRIJETÉ DÁTA ZO SELLAUTH:", JSON.stringify(req.body, null, 2));
 
         const body = req.body;
-        // Skúsime prebehnúť všetky možné vnorenia, ktoré Sellauth používateľom posiela
-        const payload = body.order || body.invoice || body.data || body.resource || body;
+        const data = body.data || body;
 
-        let productName = payload.product_name || payload.name || payload.title || payload.item_name || "Unknown Product";
-        if (payload.products && payload.products.length > 0) {
-            productName = payload.products[0].name || payload.products[0].product_name || productName;
-        }
-
-        const quantity = payload.quantity || payload.amount_items || 1;
-        const total = payload.total || payload.price || payload.amount || payload.total_price || 0;
-        const currency = payload.currency || "EUR";
-        const method = payload.gateway || payload.payment_method || payload.method || payload.processor || "Unknown";
+        // Vytiahnutie informácií zo správnych kľúčov Sellauth objektu
+        let productName = data.product_name || data.name || data.title || (data.products && data.products[0]?.name) || "Nivex Product";
+        let quantity = data.quantity || 1;
+        let total = data.total || data.price || data.amount || 0;
+        let currency = data.currency || "EUR";
+        let method = data.gateway || data.payment_method || data.method || "Crypto / Gateway";
 
         const discordPayload = {
             embeds: [{
