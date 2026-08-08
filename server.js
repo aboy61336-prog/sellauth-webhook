@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-const DISCORD_WEBHOOK_URL = 'TVOJ_DISCORD_WEBHOOK_URL';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
 
 app.post('/sellauth-webhook', async (req, res) => {
     try {
