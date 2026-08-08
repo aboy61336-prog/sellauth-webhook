@@ -13,11 +13,11 @@ app.post('/sellauth-webhook', async (req, res) => {
         let invoiceId = body.data?.invoice_id || body.invoice_id;
 
         let productName = "Nivex Product";
-        let productUrl = "https://sellauth.com";
         let quantity = 1;
         let total = 0;
         let currency = "EUR";
         let method = "Crypto";
+        let completedAt = new Date();
 
         if (invoiceId) {
             try {
@@ -39,25 +39,37 @@ app.post('/sellauth-webhook', async (req, res) => {
                     } else {
                         method = inv.gateway || "Crypto";
                     }
+
+                    if (inv.completed_at) {
+                        completedAt = new Date(inv.completed_at);
+                    }
                 }
             } catch (apiErr) {
                 console.error('Chyba pri sťahovaní dát z API:', apiErr.message);
             }
         }
 
+        const formattedDate = completedAt.toLocaleString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric', 
+            hour: 'numeric', 
+            minute: 'numeric', 
+            hour12: true 
+        });
+
         const discordPayload = {
             embeds: [{
                 title: "<:replace_nivex:1520076083028955165> ORDER COMPLETED",
                 color: 0x2B6CB0,
-                description: `> [>_ **${productName}**](${productUrl})\n\n` +
-                             `───────────────────────────────\n` +
+                description: `> [>_ **${productName}**](https://nivexshop.xyz/)\n\n` +
                              `• 📁 **Quantity:** ${quantity}\n` +
                              `• 💳 **Total Price:** ${total} ${currency} <a:nivex_money:1535661828183564298>\n` +
-                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>\n` +
-                             `───────────────────────────────`,
+                             `• 💰 **Method:** ${method} <:nivex_shield:1522572883279482951>`,
                 timestamp: new Date().toISOString(),
                 footer: {
-                    text: `Completed: ${new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}`
+                    text: `Completed: ${formattedDate}`
                 }
             }]
         };
