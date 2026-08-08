@@ -18,21 +18,22 @@ app.post('/sellauth-webhook', async (req, res) => {
         let currency = "EUR";
         let method = "Crypto";
 
-        // Ak máme ID faktúry, stiahneme detailné dáta z API
         if (invoiceId) {
             try {
-                // Použijeme správny endpoint pre konkrétnu faktúru
                 const apiResponse = await axios.get(`https://api.sellauth.com/v1/shops/153065/invoices/${invoiceId}`, {
                     headers: { 'Authorization': `Bearer ${SELLAUTH_API_KEY}` }
                 });
                 
+                // Vypíšeme celú odpoveď z API do logov, aby sme videli presné názvy premenných
+                console.log("CELÁ ODPOVEĎ Z API:", JSON.stringify(apiResponse.data, null, 2));
+
                 const inv = apiResponse.data.invoice || apiResponse.data;
                 if (inv) {
-                    productName = inv.product_name || inv.product?.name || productName;
-                    quantity = inv.quantity || 1;
+                    productName = inv.product_name || inv.product?.name || inv.items?.[0]?.product_name || inv.items?.[0]?.name || productName;
+                    quantity = inv.quantity || inv.items?.[0]?.quantity || 1;
                     total = inv.total || inv.price || 0;
                     currency = inv.currency || "EUR";
-                    method = inv.gateway_name || inv.method || "Crypto";
+                    method = inv.gateway || inv.gateway_name || inv.payment_method || inv.method || inv.crypto || method;
                 }
             } catch (apiErr) {
                 console.error('Chyba pri sťahovaní dát z API:', apiErr.message);
