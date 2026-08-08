@@ -9,24 +9,26 @@ const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/153566235190113485
 app.post('/sellauth-webhook', async (req, res) => {
     try {
         const body = req.body;
-        
-        // Sellauth zvyčajne obaľuje dáta do objektu order alebo invoice
         const payload = body.order || body.invoice || body.data || body;
 
-        // Bezpečné vytiahnutie produktov / názvu
+        // Vytiahnutie názvu produktu zo všetkých možných štruktúr Sellauthu
         let productName = "Unknown Product";
-        if (payload.products && payload.products.length > 0) {
+        if (payload.items && payload.items.length > 0) {
+            productName = payload.items[0].product_name || payload.items[0].name;
+        } else if (payload.products && payload.products.length > 0) {
             productName = payload.products[0].name || payload.products[0].product_name;
         } else if (payload.product_name) {
             productName = payload.product_name;
-        } else if (payload.item) {
-            productName = payload.item;
+        } else if (payload.product && typeof payload.product === 'string') {
+            productName = payload.product;
+        } else if (payload.product && payload.product.name) {
+            productName = payload.product.name;
         }
 
-        const quantity = payload.quantity || (payload.products && payload.products[0]?.quantity) || 1;
-        const total = payload.total || payload.price || 0;
+        const quantity = payload.quantity || (payload.items && payload.items[0]?.quantity) || 1;
+        const total = payload.total || payload.price || payload.amount || 0;
         const currency = payload.currency || "EUR";
-        const method = payload.gateway || payload.payment_method || payload.method || "Unknown";
+        const method = payload.gateway || payload.payment_method || payload.method || payload.processor || "Unknown";
 
         const discordPayload = {
             embeds: [{
@@ -35,8 +37,8 @@ app.post('/sellauth-webhook', async (req, res) => {
                 description: `**Product:** ${productName}`,
                 fields: [
                     { name: "📁 Quantity", value: String(quantity), inline: true },
-                    { name: "💳 Total Price", value: `${total} ${currency} <a:nivex_money:1535661828183564298>`, inline: true },
-                    { name: "💰 Method", value: `${method} <:nivex_shield:1522572883279482951>`, inline: true }
+                    { name: "Total Price", value: `${total} ${currency} <a:nivex_money:1535661828183564298>`, inline: true },
+                    { name: "Method", value: `${method} <:nivex_shield:1522572883279482951>`, inline: true }
                 ],
                 timestamp: new Date().toISOString(),
                 footer: {
