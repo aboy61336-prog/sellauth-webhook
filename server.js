@@ -4,13 +4,13 @@ const app = express();
 
 app.use(express.json());
 
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539048603035893872/Xo7WT36J_lASBbIKmNIXDHHpLK55APwJ2K4QzP9ap7Um0mnAQec9t8gUR5KfE1pVjR4g';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
 const SELLAUTH_API_KEY = '6017718|HLsxPN5M40VgcYxmWp0ZQ2fXpFde9nqKfwyFmRE2b7877ced';
 
 const processedInvoices = new Set();
 
 app.get('/sellauth-webhook', (req, res) => {
-    res.status(200).send('Server beží!');
+    res.status(200).send('Server beží na Railway!');
 });
 
 app.post('/sellauth-webhook', async (req, res) => {
@@ -68,9 +68,11 @@ app.post('/sellauth-webhook', async (req, res) => {
             }]
         };
 
-        // Zmena: Už nepoužívame retry slučku. Pošleme len raz.
-        // Ak Discord vráti 429, jednoducho to zalogujeme a server neskolabuje.
-        axios.post(DISCORD_WEBHOOK_URL, discordPayload).catch(err => {
+        axios.post(DISCORD_WEBHOOK_URL, discordPayload, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+        }).catch(err => {
             if (err.response?.status === 429) {
                 console.error("Discord odmietol správu kvôli Rate Limitu (429).");
             } else {
