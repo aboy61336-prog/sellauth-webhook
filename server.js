@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1535662351901134858/DJXTQtB9234MNCShF9W1BLFBNjDS5G0qWSj1KvGv4pqwLlRwa1RxKKTeTuYUt29u8pUD';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539048603035893872/Xo7WT36J_lASBbIKmNIXDHHpLK55APwJ2K4QzP9ap7Um0mnAQec9t8gUR5KfE1pVjR4g';
 const SELLAUTH_API_KEY = '6017718|HLsxPN5M40VgcYxmWp0ZQ2fXpFde9nqKfwyFmRE2b7877ced';
 
 const processedInvoices = new Set();
