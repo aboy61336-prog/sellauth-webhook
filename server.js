@@ -14,6 +14,8 @@ app.get('/sellauth-webhook', (req, res) => {
 });
 
 app.post('/sellauth-webhook', async (req, res) => {
+    console.log('PRIJATÝ WEBHOOK ZO SELLAUTH:', JSON.stringify(req.body));
+    
     try {
         const body = req.body;
         let invoiceId = body.data?.invoice_id || body.invoice_id || body.id;
@@ -21,6 +23,7 @@ app.post('/sellauth-webhook', async (req, res) => {
         if (invoiceId) {
             invoiceId = String(invoiceId);
             if (processedInvoices.has(invoiceId)) {
+                console.log(`Duplicitný webhook pre faktúru #${invoiceId} ignorovaný.`);
                 return res.status(200).send({ status: 'ignored' });
             }
             processedInvoices.add(invoiceId);
@@ -72,16 +75,19 @@ app.post('/sellauth-webhook', async (req, res) => {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
+        }).then(() => {
+            console.log('Úspešne odoslané na Discord!');
         }).catch(err => {
             if (err.response?.status === 429) {
                 console.error("Discord odmietol správu kvôli Rate Limitu (429).");
             } else {
-                console.error("Iná chyba pri odosielaní na Discord:", err.message);
+                console.error("Chyba pri odosielaní na Discord:", err.message);
             }
         });
 
         res.status(200).send({ status: 'success' });
     } catch (error) {
+        console.error("Server error:", error);
         res.status(500).send({ error: 'Server error' });
     }
 });
